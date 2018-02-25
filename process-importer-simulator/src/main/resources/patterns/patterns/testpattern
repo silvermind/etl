@@ -1,0 +1,3 @@
+MYPATTERN %{IP:clientip} %{WORD:method} %{URIPATHPARAM:request} %{NUMBER:bytes} %{NUMBER:duration}
+
+MYPATTERN2 %{IP:clientip} %{WORD:method}

@@ -1,0 +1,11 @@
+version: '2'
+services:
+  generator-frontend:
+    environment:
+      NODE_ENV: "development"
+    labels:
+      io.rancher.container.pull_image: always
+    tty: true
+    image: adopteunops/etl-frontend:{{importer_version}}
+    stdin_open: true
+    mem_swappiness: 0

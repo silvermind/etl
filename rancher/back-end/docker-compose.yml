@@ -1,0 +1,27 @@
+version: '2'
+services:
+  generator-backend:
+    environment:
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_CLUSTERNAME: "{{ elasticsearch_cluster_name }}"
+      SERVICE_ELASTICSEARCH_USERNAME: "{{elasticsearch_svckibana_username}}"
+      SERVICE_ELASTICSEARCH_PASSWORD: "{{elasticsearch_svckibana_password}}"
+      KAFKA_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_POLLRECORD: 2000
+      KAFKA_POLLINGTIME: 200
+      ALIVE_PAUSE: 30000
+      JAVA_OPTS: "-Xms{{importer_heap_size}} -Xmx{{importer_heap_size}}"
+    external_links:
+    - kafka/kafka:kafka
+    - elasticsearch/elasticsearch-client:elasticsearch
+    labels:
+      io.rancher.container.pull_image: always
+      com.prometheus.monitoring: 'true'
+      com.prometheus.port: '8080'
+      com.prometheus.metricspath: '/prometheus'
+    tty: true
+    image: adopteunops/etl-backend:{{importer_version}}
+    stdin_open: true
+    mem_limit: {{importer_mem_limit}}
+    mem_swappiness: 0

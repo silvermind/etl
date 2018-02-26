@@ -1,6 +1,8 @@
 package io.adopteunops.etl.web;
 
 import io.adopteunops.etl.service.HomeService;
+import io.adopteunops.etl.web.domain.DataCharts;
+import io.adopteunops.etl.web.domain.DataChartsWeb;
 import io.adopteunops.etl.web.domain.HomeWeb;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,5 +24,17 @@ public class HomeController {
     public HomeWeb home() {
         return homeService.getHome();
     }
+
+    @ResponseStatus(OK)
+    @GetMapping("dataCapture")
+    public DataChartsWeb dataCapture() {
+        return DataChartsWeb.builder()
+                .dataProcess(homeService.chartsForProcess())
+                .dataConfiguration(homeService.chartsForConfiguration())
+                .dataMetric(homeService.chartsForMetrics())
+                .dataWorker(homeService.chartsForWorker())
+                .build();
+    }
+
 
 }

@@ -13,11 +13,6 @@ let router = new VueRouter({
         name: 'main'
       },
       {
-        path: '/main/oops',
-        component: require('../../components/main/oops.vue'),
-        name: 'mainoops'
-      },
-      {
         path: '/configuration/list',
         component: require('../../components/configuration/list/List.vue'),
         name: 'listView'

@@ -9,6 +9,7 @@
         <v-btn flat href='/referential'>Referential</v-btn>
         <v-btn flat href="/configuration/list">Logstash Generator</v-btn>
         <v-btn flat href='/simulate/grok'>Grok Pattern Simulation</v-btn>
+        <v-btn flat href='/oops'>Grok Pattern Simulation</v-btn>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>

@@ -4,6 +4,8 @@ package io.adopteunops.etl.service;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import io.adopteunops.etl.config.ESConfiguration;
 import io.adopteunops.etl.domain.*;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +31,11 @@ import static java.util.stream.Collectors.toList;
 public class ConfService {
 
     public HashMap<String, ConfigurationLogstash> map = new HashMap<>();
-
+    public static final Gauge conf = Gauge.build()
+            .name("nb_configuration")
+            .help("nb Configuration")
+            .labelNames("status")
+            .register();
     private final String RETURN_BRACE = " }\n";
     private final String RETURN = " \n";
     private final RestHighLevelClient restHighLevelClient;
@@ -68,6 +74,18 @@ public class ConfService {
         return map.get(idConfiguration);
     }
 
+    private void updateStat(){
+        conf.labels(StatusConfig.ACTIVE.name()).set(map.values().stream()
+                .filter(configurationLogstash -> configurationLogstash.getStatusConfig() == StatusConfig.ACTIVE)
+                .count());
+        conf.labels(StatusConfig.ERROR.name()).set(map.values().stream()
+                .filter(configurationLogstash -> configurationLogstash.getStatusConfig() == StatusConfig.ERROR)
+                .count());
+        conf.labels(StatusConfig.DISABLE.name()).set(map.values().stream()
+                .filter(configurationLogstash -> configurationLogstash.getStatusConfig() == StatusConfig.DISABLE)
+                .count());
+    }
+
 
     public void activeConfiguration(String idConfiguration) {
         ConfigurationLogstash cl = map.get(idConfiguration);
@@ -75,10 +93,11 @@ public class ConfService {
             try {
                 callAddES(".logstash", cl.getName(), generateConfig(cl), cl);
                 cl.setStatusConfig(StatusConfig.ACTIVE);
-            } catch (Exception e) {
+              } catch (Exception e) {
                 log.error("Exception {}", e);
                 cl.setStatusConfig(StatusConfig.ERROR);
             }
+            updateStat();
         }
     }
 
@@ -88,10 +107,12 @@ public class ConfService {
             try {
                 callRemoveES(".logstash", cl);
                 cl.setStatusConfig(StatusConfig.DISABLE);
+
             } catch (Exception e) {
                 log.error("Exception {}", e);
                 cl.setStatusConfig(StatusConfig.ERROR);
             }
+            updateStat();
         }
     }
 

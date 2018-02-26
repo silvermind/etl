@@ -1,23 +1,30 @@
 <template>
   <v-container fluid grid-list-md >
-
-
-
-     <v-layout row style="height : 250px">
-         <v-flex xs6 sm6 md6 class="pa-3">
-           <v-card color="blue-grey darken-2" class="white--text">
+     <v-layout row style="cardSkalogs">
+         <v-flex xs6 sm6 md6  class="pa-3">
+           <v-card color="blue-grey darken-2" class="white--text" style="height : 450px;">
              <v-container fluid grid-list-lg>
                 <v-layout row>
                  <div class="headline">Process Consumer</div>
                 </v-layout>
                 <v-layout row>
-                    <v-flex>
+                    <v-flex xs1 sm1 md1>
                         <v-icon x-large dark>cached</v-icon>
                     </v-flex>
-                    <v-flex>
-                         Active : {{home.numberProcessActive}} </p>
-                         Inactive : {{home.numberProcessDeActive}} </p>
-                         Error : {{home.numberProcessError }}</p>
+                    <v-flex xs1 sm1 md1 class="text-md-right title">
+                         Active  </p>
+                         Inactive </p>
+                         Error  </p>
+                    </v-flex>
+                    <v-flex xs1 sm1 md1>
+                         {{home.numberProcessActive}} </p>
+                         {{home.numberProcessDeActive}} </p>
+                         {{home.numberProcessError }}</p>
+                    </v-flex>
+                    <v-flex xs9 sm9 md9>
+                      <div style="height: 100px">
+                          <line-chart :chart-data="dataCharts.dataProcess" :options="optionsGlobal"></line-chart>
+                      </div>
                     </v-flex>
                 </v-layout>
              </v-container>
@@ -27,19 +34,29 @@
            </v-card>
          </v-flex>
          <v-flex xs6 sm6 md6 class="pa-3">
-           <v-card color="light-blue darken-2" class="white--text">
+           <v-card color="light-blue darken-2" class="white--text" style="height : 450px;">
              <v-container fluid grid-list-lg>
                 <v-layout row>
                  <div class="headline">Worker</div>
                 </v-layout>
                 <v-layout row>
-                    <v-flex>
+                    <v-flex xs1 sm1 md1>
                         <v-icon x-large dark>near_me</v-icon>
                     </v-flex>
-                    <v-flex>
-                         Process : {{home.numberWorkerProcess}} </p>
-                         Metric : {{home.numberWorkerMetric}} </p>
-                         Referential : {{home.numberWorkerReferential }} </p>
+                    <v-flex xs1 sm1 md1 class="text-md-right title">
+                         Process</p>
+                         Metric</p>
+                         Ref.</p>
+                    </v-flex>
+                    <v-flex xs1 sm1 md1>
+                         {{home.numberWorkerProcess}} </p>
+                         {{home.numberWorkerMetric}} </p>
+                         {{home.numberWorkerReferential }}</p>
+                    </v-flex>
+                    <v-flex xs9 sm9 md9>
+                      <div style="height: 100px">
+                          <line-chart :chart-data="dataCharts.dataWorker" :options="optionsGlobal"></line-chart>
+                      </div>
                     </v-flex>
                 </v-layout>
              </v-container>
@@ -50,21 +67,31 @@
          </v-flex>
      </v-layout>
 
-     <v-layout row style="height : 250px">
+     <v-layout row style="cardSkalogs">
          <v-flex xs6 sm6 md6 class="pa-3">
-           <v-card color="deep-orange darken-2" class="white--text">
+           <v-card color="deep-orange darken-2" class="white--text" style="height : 450px;">
              <v-container fluid grid-list-lg>
                 <v-layout row>
                  <div class="headline">Process Metric</div>
                 </v-layout>
                 <v-layout row>
-                    <v-flex>
+                    <v-flex xs1 sm1 md1>
                         <v-icon x-large dark>widgets</v-icon>
                     </v-flex>
-                    <v-flex>
-                         Active : {{home.numberMetricActive}} </p>
-                         Inactive : {{home.numberMetricDeActive}} </p>
-                         Error : {{home.numberMetricError }} </p>
+                    <v-flex xs1 sm1 md1 class="text-md-right title">
+                         Active  </p>
+                         Inactive </p>
+                         Error  </p>
+                    </v-flex>
+                    <v-flex xs1 sm1 md1>
+                         {{home.numberMetricActive}} </p>
+                         {{home.numberMetricDeActive}} </p>
+                         {{home.numberMetricError }}</p>
+                    </v-flex>
+                    <v-flex xs9 sm9 md9>
+                      <div style="height: 100px">
+                          <line-chart :chart-data="dataCharts.dataMetric" :options="optionsGlobal"></line-chart>
+                      </div>
                     </v-flex>
                 </v-layout>
              </v-container>
@@ -74,19 +101,29 @@
            </v-card>
          </v-flex>
          <v-flex xs6 sm6 md6 class="pa-3">
-           <v-card color="teal darken-2" class="white--text">
+           <v-card color="teal darken-2" class="white--text" style="height : 450px;">
              <v-container fluid grid-list-lg>
                 <v-layout row>
                  <div class="headline">Configuration</div>
                 </v-layout>
                 <v-layout row>
-                    <v-flex>
+                    <v-flex xs1 sm1 md1>
                         <v-icon x-large dark>extension</v-icon>
                     </v-flex>
-                    <v-flex>
-                         Active : {{home.numberConfigurationActive}}</p>
-                         Inactive : {{home.numberConfigurationDeActive}}</p>
-                         Error : {{home.numberConfigurationError }}</p>
+                    <v-flex xs1 sm1 md1 class="text-md-right title">
+                         Active  </p>
+                         Inactive </p>
+                         Error  </p>
+                    </v-flex>
+                    <v-flex xs1 sm1 md1>
+                         {{home.numberConfigurationActive}} </p>
+                         {{home.numberConfigurationDeActive}} </p>
+                         {{home.numberConfigurationError }}</p>
+                    </v-flex>
+                    <v-flex xs9 sm9 md9>
+                      <div style="height: 100px">
+                          <line-chart :chart-data="dataCharts.dataConfiguration" :options="optionsGlobal"></line-chart>
+                      </div>
                     </v-flex>
                 </v-layout>
              </v-container>
@@ -160,13 +197,20 @@
           </v-alert>
         </v-flex>
      </v-layout>
+
   </v-container>
 </template>
-
-
-
+<style>
+  .cardSkalogs {
+    height : 450px; padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;
+  }
+</style>
 <script>
+  import LineChart from './LineChart.js'
   export default{
+    components: {
+      LineChart
+    },
     data () {
          return {
            dialogProcess : false,
@@ -197,11 +241,48 @@
              { text : 'Name',align : 'center',value : 'name'},
              { text : 'Status',align : 'center',value : 'status'}
            ],
+           optionsGlobal: {responsive: true,maintainAspectRatio: false,
+                                   legend: {
+                                       position: 'bottom',
+                                       labels: {fontColor: "white",
+                                                fontSize: 12
+                                               }
+                                   },
+                                   hover: {
+                                       mode: 'label'
+                                   },
+                                   scales: {
+                                       xAxes: [{
+                                               display: true,
+                                               type: 'linear',
+                                               scaleLabel: {
+                                                   display: true,
+                                                   fontStyle: 'bold'
+                                               },ticks: {fontColor: "#CCC"}
+                                           }],
+                                       yAxes: [{
+                                               display: true,
+                                               ticks: {
+                                                   beginAtZero: true,
+                                                   steps: 10,
+                                                   stepValue: 5,
+                                                   fontColor: "#CCC"
+                                               }
+                                           }]
+                                   }
+                                },
+           dataCharts: {"dataProcess": '',"dataMetric": '',"dataWorker": '',"dataConfiguration" :''}
          }
     },
     mounted() {
-        this.$http.get('/home/fetch').then(response => {
-            this.home=response.data;
+         this.$http.get('/home/fetch').then(response => {
+           this.home=response.data;
+         }, response => {
+           this.viewError=true;
+           this.msgError = "Error during call service";
+         });
+         this.$http.get('/home/dataCapture').then(response => {
+           this.dataCharts=response.data;
          }, response => {
            this.viewError=true;
            this.msgError = "Error during call service";

@@ -2,6 +2,7 @@ package io.adopteunops.etl.service;
 
 import io.adopteunops.etl.config.ProcessConfiguration;
 import io.adopteunops.etl.domain.*;
+import io.prometheus.client.Gauge;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,6 +28,11 @@ public class RegistryService {
     private HashMap<String, RegistryWorker> registeredWorkers = new HashMap<>();
     private Map<String, ConsumerState> registeredConsumers = new HashMap<>();
 
+    public static final Gauge worker = Gauge.build()
+            .name("nb_worker")
+            .help("nb worker")
+            .labelNames("status")
+            .register();
 
     public RegistryService(ProcessConfiguration processConfiguration) {
         this.processConfiguration = processConfiguration;
@@ -49,6 +55,7 @@ public class RegistryService {
                 .status(StatusWorker.OK)
                 .statusConsumerList(registryWorker.getStatusConsumerList())
                 .build());
+        worker.labels(StatusWorker.OK.name()).inc();
     }
 
     public void refresh(RegistryWorker registryWorker) {
@@ -173,6 +180,15 @@ public class RegistryService {
                 .forEach(registry -> registry.setStatus(statusWorker(new Date(), registry)));
         rescheduleConsumerFromDeadWorkers();
         rescheduleConsumersInError();
+        worker.labels(StatusWorker.OK.name()).set(registeredWorkers.values().stream()
+                .filter(registryWorker -> registryWorker.getStatus() == StatusWorker.OK)
+                .count());
+        worker.labels(StatusWorker.KO.name()).set(registeredWorkers.values().stream()
+                .filter(registryWorker -> registryWorker.getStatus() == StatusWorker.KO)
+                .count());
+        worker.labels(StatusWorker.FULL.name()).set(registeredWorkers.values().stream()
+                .filter(registryWorker -> registryWorker.getStatus() == StatusWorker.FULL)
+                .count());
     }
 
     private void rescheduleConsumerFromDeadWorkers() {

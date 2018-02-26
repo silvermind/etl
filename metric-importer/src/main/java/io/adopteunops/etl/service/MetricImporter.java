@@ -1,20 +1,17 @@
 package io.adopteunops.etl.service;
 
 import com.google.common.base.Preconditions;
-import io.adopteunops.etl.config.ESBufferConfiguration;
-import io.adopteunops.etl.config.ESConfiguration;
 import io.adopteunops.etl.config.KafkaConfiguration;
 import io.adopteunops.etl.config.ProcessConfiguration;
 import io.adopteunops.etl.domain.*;
 import io.adopteunops.etl.rules.metrics.GenericMetricProcessor;
 import io.adopteunops.etl.rules.metrics.RuleMetricExecutor;
-import io.adopteunops.etl.rules.metrics.processor.MetricsElasticsearchProcessor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,10 +30,7 @@ public class MetricImporter {
     private final RuleMetricExecutor ruleMetricExecutor;
     private final KafkaConfiguration kafkaConfiguration;
     private final ProcessConfiguration processConfiguration;
-    private final ESConfiguration esConfiguration;
-    private final RestHighLevelClient esClient;
-    private final ESBufferConfiguration esBufferConfiguration;
-    private final ESErrorRetryWriter esErrorRetryWriter;
+    private final ApplicationContext applicationContext;
     private final Map<ProcessMetric, KafkaStreams> runningMetricProcessors = new HashMap();
 
     @PostConstruct
@@ -48,7 +42,7 @@ public class MetricImporter {
         Preconditions.checkArgument(!processMetric.getFromTopic().equalsIgnoreCase(processMetric.getToTopic()), "destination topic cannot be equal to source topic");
         log.info("creating {} Metric Stream Process", processMetric.getName());
         GenericMetricProcessor metricProcessor = ruleMetricExecutor.instanciate(processMetric.getName(), processMetric.toDSL());
-        metricProcessor.setMetricsElasticsearchProcessor(initESProcessor());
+        metricProcessor.setApplicationContext(applicationContext);
 
         KafkaStreams metricStream = metricProcessor.buildStream(createProperties(kafkaConfiguration.getBootstrapServers()));
         metricStream.start();
@@ -60,11 +54,6 @@ public class MetricImporter {
         log.info("deactivating {} Metric Stream Process", processMetric.getName());
         runningMetricProcessors.get(processMetric).close();
         runningMetricProcessors.remove(processMetric);
-    }
-
-    private MetricsElasticsearchProcessor initESProcessor() {
-        ESBuffer esBuffer = new ESBuffer(esClient, esBufferConfiguration, esConfiguration);
-        return new MetricsElasticsearchProcessor(esBuffer, esErrorRetryWriter, RetentionLevel.week);
     }
 
     private Properties createProperties(String bootstrapServers) {

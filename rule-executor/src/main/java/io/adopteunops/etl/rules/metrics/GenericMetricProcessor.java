@@ -7,6 +7,7 @@ import io.adopteunops.etl.rules.functions.FunctionRegistry;
 import io.adopteunops.etl.rules.metrics.domain.Keys;
 import io.adopteunops.etl.rules.metrics.domain.MetricResult;
 import io.adopteunops.etl.rules.metrics.processor.MetricsElasticsearchProcessor;
+import io.adopteunops.etl.rules.metrics.processor.MetricsEmailProcessor;
 import io.adopteunops.etl.rules.metrics.serdes.MetricsSerdes;
 import io.adopteunops.etl.rules.metrics.udaf.AggregateFunction;
 import io.adopteunops.etl.serdes.ValidateDataDeserializer;
@@ -20,8 +21,10 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.processor.AbstractProcessor;
 import org.apache.kafka.streams.state.SessionStore;
 import org.apache.kafka.streams.state.WindowStore;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +37,8 @@ public abstract class GenericMetricProcessor {
     private final String dsl;
     private final String srcTopic;
     @Setter
-    private MetricsElasticsearchProcessor metricsElasticsearchProcessor = null;
+    private ApplicationContext applicationContext;
+
 
     protected GenericMetricProcessor(String name, String dsl, String srcTopic) {
         this.name = name;
@@ -62,7 +66,7 @@ public abstract class GenericMetricProcessor {
 
         KStream<Keys, MetricResult> result = aggregateResults
                 .toStream()
-                .map((key, value) -> new KeyValue<>(key.key(), new MetricResult(key,value)));
+                .map((key, value) -> new KeyValue<>(key.key(), new MetricResult(key, value)));
 
         routeResult(result);
 
@@ -80,12 +84,18 @@ public abstract class GenericMetricProcessor {
     }
 
     protected void toElasticsearch(KStream<Keys, MetricResult> result, RetentionLevel retentionLevel) {
+        MetricsElasticsearchProcessor metricsElasticsearchProcessor = applicationContext.getBean(MetricsElasticsearchProcessor.class, retentionLevel);
         result.process(() -> metricsElasticsearchProcessor);
     }
 
-
     protected void toSystemOut(KStream<Keys, MetricResult> result) {
-        result.process(() -> new LoggingProcessor<>());
+        AbstractProcessor abstractProcessor = applicationContext.getBean(LoggingProcessor.class);
+        result.process(() -> abstractProcessor);
+    }
+
+    protected void toEmail(KStream<Keys, MetricResult> result, String destinationEmail) {
+        AbstractProcessor abstractProcessor = applicationContext.getBean(MetricsEmailProcessor.class, destinationEmail);
+        result.process(() -> abstractProcessor);
     }
 
     protected AggregateFunction aggFunction(String aggFunctionName) {

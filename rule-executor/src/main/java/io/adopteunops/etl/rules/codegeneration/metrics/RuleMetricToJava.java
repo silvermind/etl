@@ -93,6 +93,15 @@ public class RuleMetricToJava {
             javaCode += "        return keys;\n" +
                     "    }\n";
         }
+
+        if (StringUtils.isNotBlank(ruleMetricVisitor.getHaving())) {
+            javaCode += "    \n" +
+                    "    @Override\n" +
+                    "    protected boolean having(Windowed<Keys> keys, Double result) {\n" +
+                    "        return " + nullSafePredicate(ruleMetricVisitor.getHaving()) +";\n" +
+                    "    }\n";
+        }
+
         javaCode += "    \n" +
                 "    @Override\n" +
                 "    public void routeResult(KStream<Keys, MetricResult> result) {\n" +

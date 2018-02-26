@@ -66,6 +66,7 @@ public abstract class GenericMetricProcessor {
 
         KStream<Keys, MetricResult> result = aggregateResults
                 .toStream()
+                .filter(this::having)
                 .map((key, value) -> new KeyValue<>(key.key(), new MetricResult(key, value)));
 
         routeResult(result);
@@ -123,6 +124,9 @@ public abstract class GenericMetricProcessor {
         return true;
     }
 
+    protected boolean having(Windowed<Keys> keys, Double result) {
+        return true;
+    }
     // INTERNALS
     private Materialized<Keys, AggregateFunction, WindowStore<Bytes, byte[]>> materializedMathOperationTimeWindow() {
         return Materialized.<Keys, AggregateFunction, WindowStore<Bytes, byte[]>>as("aggregated-stream-store")

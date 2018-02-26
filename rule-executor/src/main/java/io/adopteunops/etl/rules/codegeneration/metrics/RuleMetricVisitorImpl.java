@@ -36,7 +36,7 @@ public class RuleMetricVisitorImpl extends RuleMetricBaseVisitor<String> {
                 groupBy = visit(ctx.group_by());
             }
             if (ctx.having() != null) {
-                having = visit(ctx.having());
+                having = visitHaving(ctx.having());
             }
             destination = visitDestination(ctx.destination());
             return "";
@@ -83,6 +83,11 @@ public class RuleMetricVisitorImpl extends RuleMetricBaseVisitor<String> {
                 visit(ctx.INT()) +
                 "," +
                 visit(ctx.timeunit()) + ")";
+    }
+
+    @Override
+    public String visitHaving(HavingContext ctx) {
+        return visit(ctx.RESULT()) + " " + visit(ctx.COMPARISON_OPERATION()) + " " + visit(ctx.INT());
     }
 
     @Override

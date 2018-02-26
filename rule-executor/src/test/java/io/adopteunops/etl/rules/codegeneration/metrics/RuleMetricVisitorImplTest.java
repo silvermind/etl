@@ -200,7 +200,7 @@ public class RuleMetricVisitorImplTest {
     @Test
     public void having() {
         RuleMetricVisitorImpl convert = convert("SELECT MIN(duration)  FROM mytopic WINDOW TUMBLING(5 MINUTES)  HAVING result > 3 TO KAFKA esulttopic");
-        assertThat(convert.getHaving()).isEqualTo("3");
+        assertThat(convert.getHaving()).isEqualTo("result > 3");
     }
 
     public RuleMetricVisitorImpl convert(String dsl) {

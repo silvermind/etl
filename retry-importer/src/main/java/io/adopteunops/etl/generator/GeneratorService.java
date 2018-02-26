@@ -33,14 +33,14 @@ public class GeneratorService {
     public void createRandom(Integer nbElemBySlot, Integer nbSlot) {
 
         for (int i = 0; i < nbSlot; i++) {
-            for(int j=0;j<nbElemBySlot;j++) {
+            for (int j = 0; j < nbElemBySlot; j++) {
                 ISO8601DateFormat df = new ISO8601DateFormat();
-                Date newDate = addMinutesAndSecondsToTime(i,RANDOM.nextInt(50),new Date());
-                log.debug(i+"--"+j+"***"+df.format(newDate));
+                Date newDate = addMinutesAndSecondsToTime(i, RANDOM.nextInt(50), new Date());
+                log.debug(i + "--" + j + "***" + df.format(newDate));
                 sendToKafka(RawDataGen.builder()
                         .timestamp(df.format(newDate))
                         .type("gnii")
-                        .messageSend(" message number " +i+"--"+j+" for timestamp"+df.format(newDate))
+                        .messageSend(" message number " + i + "--" + j + " for timestamp" + df.format(newDate))
                         .build());
             }
         }

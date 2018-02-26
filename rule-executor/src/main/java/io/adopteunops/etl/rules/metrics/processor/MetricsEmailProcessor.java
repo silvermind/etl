@@ -11,7 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 @AllArgsConstructor
 @Slf4j
-public class MetricsEmailProcessor extends AbstractProcessor<Keys,MetricResult> {
+public class MetricsEmailProcessor extends AbstractProcessor<Keys, MetricResult> {
 
     private final JavaMailSender javaMailSender;
     private final String destinationMail;
@@ -24,10 +24,9 @@ public class MetricsEmailProcessor extends AbstractProcessor<Keys,MetricResult> 
         msg.setTo(destinationMail);
         //TODO: should be replaced via a template engine such as velocity freemarker or thymeleaf
         msg.setText(value.getRuleName() + " triggered with value " + value.getResult());
-        try{
+        try {
             this.javaMailSender.send(msg);
-        }
-        catch (MailException ex) {
+        } catch (MailException ex) {
             log.error("can't send mail to " + destinationMail + " in " + value.getRuleName(), ex);
         }
     }

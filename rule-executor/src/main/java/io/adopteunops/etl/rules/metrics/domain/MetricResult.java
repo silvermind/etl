@@ -23,7 +23,7 @@ public class MetricResult {
     public MetricResult(Windowed<Keys> keysWindowed, Double result) {
         this.ruleName = keysWindowed.key().getRuleName();
         this.ruleDSL = keysWindowed.key().getRuleDSL();
-        this.project =keysWindowed.key().getProject();
+        this.project = keysWindowed.key().getProject();
         this.keys = Collections.unmodifiableMap(keysWindowed.key().getKeys());
         this.startDate = new Date(keysWindowed.window().start());
         this.endDate = new Date(keysWindowed.window().end());

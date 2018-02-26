@@ -36,7 +36,7 @@ public class BlackListValidator extends ValidatorProcess {
                     .filter(e -> isBlackList(jsonValue, e))
                     .collect(toList());
             if (!listBlack.isEmpty()) {
-                listBlack.forEach(item -> nbMessageBlackList.labels(item.getKey()+"-"+item.getValue()).inc());
+                listBlack.forEach(item -> nbMessageBlackList.labels(item.getKey() + "-" + item.getValue()).inc());
                 return createValidateData(false, StatusCode.blacklist, TypeValidation.BLACK_LIST_FIELD, value, listBlack.stream().map(e -> e.getKey() + "-" + e.getValue()).collect(Collectors.joining(";")));
             } else {
                 return ValidateData.builder()

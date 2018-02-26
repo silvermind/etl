@@ -57,16 +57,16 @@
                 </executions>
             </plugin>
             <plugin>
-                 <groupId>com.spotify</groupId>
-                 <artifactId>dockerfile-maven-plugin</artifactId>
-                 <configuration>
-                     <repository>adopteunops/error-importer</repository>
-                     <tag>${project.version}</tag>
-                     <buildArgs>
-                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                     </buildArgs>
-                 </configuration>
-             </plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <configuration>
+                    <repository>adopteunops/error-importer</repository>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

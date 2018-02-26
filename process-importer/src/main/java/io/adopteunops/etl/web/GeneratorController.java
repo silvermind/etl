@@ -19,6 +19,6 @@ public class GeneratorController {
     @ResponseStatus(CREATED)
     @PutMapping("/inputTopic")
     public void inputTopic(@Valid @RequestBody PayloadTopic payload) {
-        generatorService.createRandom(payload.getNbElemBySlot(),payload.getNbSlot());
+        generatorService.createRandom(payload.getNbElemBySlot(), payload.getNbSlot());
     }
 }

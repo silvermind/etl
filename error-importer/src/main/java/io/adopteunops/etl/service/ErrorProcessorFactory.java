@@ -22,8 +22,8 @@ public class ErrorProcessorFactory {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ErrorToElasticsearchProcessor errorToElasticsearchProcessor() {
-        ESBuffer esBuffer = new ESBuffer(client,esBufferConfiguration, esConfiguration);
-        return new ErrorToElasticsearchProcessor(esBuffer,esErrorRetryWriter);
+        ESBuffer esBuffer = new ESBuffer(client, esBufferConfiguration, esConfiguration);
+        return new ErrorToElasticsearchProcessor(esBuffer, esErrorRetryWriter);
     }
 
 }

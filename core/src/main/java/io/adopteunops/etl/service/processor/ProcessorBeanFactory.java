@@ -22,8 +22,8 @@ public class ProcessorBeanFactory {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public ValidateDataToElasticSearchProcessor elasticSearchProcessor() {
-        ESBuffer esBuffer = new ESBuffer(client,esBufferConfiguration, esConfiguration);
-        return new ValidateDataToElasticSearchProcessor(esBuffer,esErrorRetryWriter);
+        ESBuffer esBuffer = new ESBuffer(client, esBufferConfiguration, esConfiguration);
+        return new ValidateDataToElasticSearchProcessor(esBuffer, esErrorRetryWriter);
     }
 
     @Bean

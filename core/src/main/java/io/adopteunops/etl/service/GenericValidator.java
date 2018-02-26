@@ -59,19 +59,19 @@ public class GenericValidator {
 
     public ValidateData mandatoryImporter(String value, JsonNode jsonValue) {
         //JSON
-        if(jsonValue == null){
+        if (jsonValue == null) {
             nbMandatoryImporter.labels("jsonFormat").inc();
             return createValidateData(false, StatusCode.invalid_json, TypeValidation.FORMAT_JSON, value);
         }
         //PROJECT
         String project = jsonValue.path("project").asText();
-        if(StringUtils.isBlank(project)){
+        if (StringUtils.isBlank(project)) {
             nbMandatoryImporter.labels("project").inc();
             return createValidateData(false, StatusCode.missing_mandatory_field, TypeValidation.MANDATORY_FIELD, value, "missing project");
         }
         //TYPE
         String type = jsonValue.path("type").asText();
-        if(StringUtils.isBlank(type)){
+        if (StringUtils.isBlank(type)) {
             nbMandatoryImporter.labels("type").inc();
             return createValidateData(false, StatusCode.missing_mandatory_field, TypeValidation.MANDATORY_FIELD, value, "missing type");
         }
@@ -79,15 +79,15 @@ public class GenericValidator {
         String timestampAnnotedAsString = jsonValue.path("@timestamp").asText();
         String timestampAsString = jsonValue.path("timestamp").asText();
 
-        if (StringUtils.isBlank(timestampAsString) && StringUtils.isBlank(timestampAnnotedAsString) ) {
+        if (StringUtils.isBlank(timestampAsString) && StringUtils.isBlank(timestampAnnotedAsString)) {
             return createValidateData(project, type, false, StatusCode.missing_timestamp, TypeValidation.MANDATORY_FIELD, value);
         }
 
         Date timestamp;
         try {
-            if(StringUtils.isBlank(timestampAsString)){
+            if (StringUtils.isBlank(timestampAsString)) {
                 timestamp = dateFormat.parse(timestampAnnotedAsString);
-            }else{
+            } else {
                 timestamp = dateFormat.parse(timestampAsString);
             }
 
@@ -97,31 +97,31 @@ public class GenericValidator {
         return createValidateData(jsonValue, timestamp, project, type, true, value);
     }
 
-    public ValidateData process(String value, ProcessConsumer processConsumer){
+    public ValidateData process(String value, ProcessConsumer processConsumer) {
         JsonNode jsonValue = createJsonObject(value);
 
-        ValidateData validateMandatory = mandatoryImporter(value,jsonValue);
-        if(!validateMandatory.success){
+        ValidateData validateMandatory = mandatoryImporter(value, jsonValue);
+        if (!validateMandatory.success) {
             return createValidateData(false, validateMandatory.statusCode, validateMandatory.errorList, TypeValidation.MANDATORY_FIELD, value);
         }
-        List<ValidateData> result = treat(value,jsonValue,processConsumer);
+        List<ValidateData> result = treat(value, jsonValue, processConsumer);
         List<ValidateData> listNotSuccess = result.stream().filter(e -> !e.success).collect(toList());
-        if(!listNotSuccess.isEmpty()){
+        if (!listNotSuccess.isEmpty()) {
             return createValidateData(false, validateMandatory.statusCode, listNotSuccess.stream().map(e -> e.getStatusCode()).collect(toList()), TypeValidation.MANDATORY_FIELD, value);
         }
         return ValidateData.builder()
-                    .success(true)
-                    .jsonValue(jsonValue)
-                    .type(validateMandatory.type)
-                    .project(validateMandatory.project)
-                    .timestamp(validateMandatory.timestamp)
-                    .value(value).build();
+                .success(true)
+                .jsonValue(jsonValue)
+                .type(validateMandatory.type)
+                .project(validateMandatory.project)
+                .timestamp(validateMandatory.timestamp)
+                .value(value).build();
 
     }
 
     public List<ValidateData> treat(String value, JsonNode jsonValue, ProcessConsumer processConsumer) {
         List<ValidateData> result = new ArrayList<>();
-        if(processConsumer.getProcessValidation()!=null && !processConsumer.getProcessValidation().isEmpty()) {
+        if (processConsumer.getProcessValidation() != null && !processConsumer.getProcessValidation().isEmpty()) {
             for (ProcessValidation pv : processConsumer.getProcessValidation()) {
                 listValidator.stream()
                         .filter(e -> e.type(pv.getTypeValidation()))

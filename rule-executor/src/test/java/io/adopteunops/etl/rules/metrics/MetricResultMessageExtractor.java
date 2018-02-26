@@ -15,7 +15,7 @@ public class MetricResultMessageExtractor implements KafkaUnit.MessageExtractor<
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Keys keys = objectMapper.readValue(record.key(), Keys.class);
-            MetricResult value = objectMapper.readValue(record.value(),MetricResult.class);
+            MetricResult value = objectMapper.readValue(record.value(), MetricResult.class);
 
             return new KafkaUnit.Message<>(keys, value);
         } catch (IOException e) {

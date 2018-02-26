@@ -26,8 +26,8 @@ public class MetricsElasticsearchProcessorBeanFactory {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public MetricsElasticsearchProcessor metricsElasticsearchProcessor(RetentionLevel retentionLevel) {
-        ESBuffer esBuffer = new ESBuffer(client,esBufferConfiguration, esConfiguration);
-        return new MetricsElasticsearchProcessor(esBuffer,esErrorRetryWriter,retentionLevel);
+        ESBuffer esBuffer = new ESBuffer(client, esBufferConfiguration, esConfiguration);
+        return new MetricsElasticsearchProcessor(esBuffer, esErrorRetryWriter, retentionLevel);
     }
 
     @Bean

@@ -8,6 +8,7 @@ import kafka.utils.ZkUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +56,7 @@ public class KafkaAdminService {
     public void createTopic(TopicInfo topicInfo) {
 
         Properties paramTopic = new Properties();
-        paramTopic.put("retention.ms", topicInfo.getRetentionHours() * 60 * 1000);
+        paramTopic.put(TopicConfig.RETENTION_MS_CONFIG, topicInfo.getRetentionHours() * 60 * 1000);
 
         ZkUtils zkUtils = zookeeperConfiguration.newConnection();
 

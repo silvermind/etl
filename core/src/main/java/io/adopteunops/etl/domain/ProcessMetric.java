@@ -58,9 +58,9 @@ public class ProcessMetric implements ProcessDefinition {
             case SYSTEM_OUT:
                 return " TO " + typeOutput;
             case KAFKA:
-                return " TO " + typeOutput + toTopic;
+                return " TO " + typeOutput + " " + toTopic;
             case ELASTICSEARCH:
-                return " TO " + typeOutput + retentionLevel;
+                return " TO " + typeOutput + " " + retentionLevel;
             default:
                 throw new IllegalArgumentException("Unsupported output type" + typeOutput);
         }
@@ -70,10 +70,10 @@ public class ProcessMetric implements ProcessDefinition {
     private String toWindowDSL() {
         switch (windowType) {
             case HOPPING:
-                return " WINDOW " + windowType + '(' + size + sizeUnit + ',' + advanceBy + advanceByUnit + ')';
+                return " WINDOW " + windowType + '(' + size + " " + sizeUnit + ',' + advanceBy + " " + advanceByUnit + ')';
             case SESSION:
             case TUMBLING:
-                return " WINDOW " + windowType + '(' + size + sizeUnit + ')';
+                return " WINDOW " + windowType + '(' + size + " " + sizeUnit + ')';
             default:
                 throw new IllegalArgumentException("Unsupported window type " + windowType);
         }

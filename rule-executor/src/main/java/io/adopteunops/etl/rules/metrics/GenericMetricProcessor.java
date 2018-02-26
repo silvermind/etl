@@ -5,6 +5,7 @@ import io.adopteunops.etl.domain.RetentionLevel;
 import io.adopteunops.etl.domain.ValidateData;
 import io.adopteunops.etl.rules.functions.FunctionRegistry;
 import io.adopteunops.etl.rules.metrics.domain.Keys;
+import io.adopteunops.etl.rules.metrics.domain.MetricResult;
 import io.adopteunops.etl.rules.metrics.processor.MetricsElasticsearchProcessor;
 import io.adopteunops.etl.rules.metrics.serdes.MetricsSerdes;
 import io.adopteunops.etl.rules.metrics.udaf.AggregateFunction;
@@ -59,9 +60,9 @@ public abstract class GenericMetricProcessor {
 
         KTable<Windowed<Keys>, Double> aggregateResults = aggregate(filteredElementsGroupByKeys);
 
-        KStream<Keys, Double> result = aggregateResults
+        KStream<Keys, MetricResult> result = aggregateResults
                 .toStream()
-                .map((key, value) -> new KeyValue<>(key.key(), value));
+                .map((key, value) -> new KeyValue<>(key.key(), new MetricResult(key,value)));
 
         routeResult(result);
 
@@ -72,18 +73,18 @@ public abstract class GenericMetricProcessor {
         return streams;
     }
 
-    public abstract void routeResult(KStream<Keys, Double> result);
+    public abstract void routeResult(KStream<Keys, MetricResult> result);
 
-    protected void toKafkaTopic(KStream<Keys, Double> result, String destTopic) {
-        result.to(destTopic, Produced.with(MetricsSerdes.keysSerde(), Serdes.Double()));
+    protected void toKafkaTopic(KStream<Keys, MetricResult> result, String destTopic) {
+        result.to(destTopic, Produced.with(MetricsSerdes.keysSerde(), MetricsSerdes.metricResultSerdes()));
     }
 
-    protected void toElasticsearch(KStream<Keys, Double> result, RetentionLevel retentionLevel) {
+    protected void toElasticsearch(KStream<Keys, MetricResult> result, RetentionLevel retentionLevel) {
         result.process(() -> metricsElasticsearchProcessor);
     }
 
 
-    protected void toSystemOut(KStream<Keys, Double> result) {
+    protected void toSystemOut(KStream<Keys, MetricResult> result) {
         result.process(() -> new LoggingProcessor<>());
     }
 

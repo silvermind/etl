@@ -1,6 +1,7 @@
 package io.adopteunops.etl.rules.metrics.serdes;
 
 import io.adopteunops.etl.rules.metrics.domain.Keys;
+import io.adopteunops.etl.rules.metrics.domain.MetricResult;
 import io.adopteunops.etl.rules.metrics.udaf.AggregateFunction;
 import io.adopteunops.etl.serdes.GenericDeserializer;
 import io.adopteunops.etl.serdes.GenericSerializer;
@@ -15,5 +16,10 @@ public class MetricsSerdes {
 
     public static Serde<AggregateFunction> aggFunctionSerdes() {
         return Serdes.serdeFrom(new GenericSerializer<AggregateFunction>(), new GenericDeserializer(AggregateFunction.class));
+    }
+
+
+    public static Serde<MetricResult> metricResultSerdes() {
+        return Serdes.serdeFrom(new GenericSerializer<MetricResult>(), new GenericDeserializer(MetricResult.class));
     }
 }

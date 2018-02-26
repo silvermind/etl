@@ -83,7 +83,7 @@
       <v-stepper-content step="7">
         <v-select v-bind:items="outputTypes" v-model="metricProcess.typeOutput" label="Select output type" item-value="text" required :rules="[() => !!metricProcess.typeOutput || 'This field is required']"></v-select>
         <v-text-field label="Destination Topic" v-model="metricProcess.toTopic" required v-if="metricProcess.typeOutput == 'KAFKA'" :rules="[() => metricProcess.typeOutput == 'KAFKA'  && !!metricProcess.toTopic || 'This field is required']"></v-text-field>
-        <v-select v-bind:items="retentionLevels" v-model="metricProcess.retentionLevel" label="Select retention level" item-value="text" required v-if="metricProcess.typeOutput == 'ELASTICSEARCH'"  :rules="[() => metricProcess.typeOutput == 'ELASTICSEARCH' && !!metricProcess.typeOutput || 'This field is required']"></v-select>
+        <v-select v-bind:items="retentionLevels" v-model="metricProcess.retentionLevel" label="Select retention level" item-value="text" required v-if="metricProcess.typeOutput == 'ELASTICSEARCH'"  :rules="[() => metricProcess.typeOutput == 'ELASTICSEARCH' && !!metricProcess.retentionLevel || 'This field is required']"></v-select>
         <v-btn color="primary" @click.native="nextStep()" :disabled="!metricProcess.toTopic">Continue</v-btn>
         <v-btn flat @click.native="previousStep()">Cancel</v-btn>
       </v-stepper-content>
@@ -161,7 +161,7 @@
             windowTypes: ["TUMBLING", "HOPPING", "SESSION"],
             timeunits: ["SECONDS","MINUTES","HOURS","DAYS"],
             outputTypes: [ "KAFKA", "SYSTEM_OUT", "ELASTICSEARCH" ],
-            retentionLevels: [ "day", "week", "month", "year"],
+            retentionLevels: [ "day", "week", "month", "quarter", "year"],
             metricWizardStep: 1,
             message:""
          }

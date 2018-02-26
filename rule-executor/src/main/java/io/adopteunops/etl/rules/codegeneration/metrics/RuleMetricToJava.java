@@ -39,6 +39,7 @@ public class RuleMetricToJava {
                 "import io.adopteunops.etl.rules.metrics.GenericMetricProcessor;\n" +
                 "import io.adopteunops.etl.rules.metrics.udaf.AggregateFunction;\n" +
                 "import io.adopteunops.etl.rules.metrics.domain.Keys;\n" +
+                "import io.adopteunops.etl.rules.metrics.domain.MetricResult;\n" +
                 "import static java.util.concurrent.TimeUnit.*;\n" +
                 "\n" +
                 "import javax.annotation.Generated;\n" +
@@ -94,7 +95,7 @@ public class RuleMetricToJava {
         }
         javaCode += "    \n" +
                 "    @Override\n" +
-                "    public void routeResult(KStream<Keys, Double> result) {\n" +
+                "    public void routeResult(KStream<Keys, MetricResult> result) {\n" +
                 "        " + ruleMetricVisitor.getDestination() + ";\n" +
                 "    }\n" +
                 "}";

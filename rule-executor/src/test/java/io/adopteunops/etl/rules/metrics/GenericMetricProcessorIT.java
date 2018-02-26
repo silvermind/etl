@@ -6,6 +6,7 @@ import io.adopteunops.etl.kafka.KafkaUnit;
 import io.adopteunops.etl.kafka.KafkaUnitRule;
 import io.adopteunops.etl.rules.UtilsValidator;
 import io.adopteunops.etl.rules.metrics.domain.Keys;
+import io.adopteunops.etl.rules.metrics.domain.MetricResult;
 import io.adopteunops.etl.rules.metrics.udaf.AggregateFunction;
 import io.adopteunops.etl.serdes.ValidateDataSerializer;
 import io.adopteunops.etl.utils.JSONUtils;
@@ -61,7 +62,7 @@ public class GenericMetricProcessorIT {
         String destTopic = "min-dest";
         GenericMetricProcessor minDuration = new GenericMetricProcessor("min", "dsl", "min-src") {
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -80,12 +81,12 @@ public class GenericMetricProcessorIT {
                 return value.path("duration").asDouble();
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(1);
         assertThat(resultInDestTopic.get(0).getKey().getRuleName()).isEqualTo("min");
         assertThat(resultInDestTopic.get(0).getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(resultInDestTopic.get(0).getKey().getProject()).isEqualTo("myproject");
-        assertThat(resultInDestTopic.get(0).getValue()).isEqualTo(1);
+        assertThat(resultInDestTopic.get(0).getValue().getResult()).isEqualTo(1);
     }
 
     @Test
@@ -99,7 +100,7 @@ public class GenericMetricProcessorIT {
         GenericMetricProcessor minDuration = new GenericMetricProcessor("max", "dsl", "max-src") {
 
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -118,13 +119,13 @@ public class GenericMetricProcessorIT {
                 return value.path("duration").asDouble();
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(1);
-        KafkaUnit.Message<Keys, Double> result1 = resultInDestTopic.get(0);
+        KafkaUnit.Message<Keys, MetricResult> result1 = resultInDestTopic.get(0);
         assertThat(result1.getKey().getRuleName()).isEqualTo("max");
         assertThat(result1.getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(result1.getKey().getProject()).isEqualTo("myproject");
-        assertThat(result1.getValue()).isEqualTo(10);
+        assertThat(result1.getValue().getResult()).isEqualTo(10);
     }
 
     @Test
@@ -140,7 +141,7 @@ public class GenericMetricProcessorIT {
         GenericMetricProcessor minDuration = new GenericMetricProcessor("avg", "dsl", "avg-src") {
 
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -159,13 +160,13 @@ public class GenericMetricProcessorIT {
                 return value.path("duration").asDouble();
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(1);
-        KafkaUnit.Message<Keys, Double> result1 = resultInDestTopic.get(0);
+        KafkaUnit.Message<Keys, MetricResult> result1 = resultInDestTopic.get(0);
         assertThat(result1.getKey().getRuleName()).isEqualTo("avg");
         assertThat(result1.getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(result1.getKey().getProject()).isEqualTo("myproject");
-        assertThat(result1.getValue()).isEqualTo(5);
+        assertThat(result1.getValue().getResult()).isEqualTo(5);
     }
 
     @Test
@@ -181,7 +182,7 @@ public class GenericMetricProcessorIT {
         GenericMetricProcessor minDuration = new GenericMetricProcessor("sum", "dsl", "sum-src") {
 
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -200,13 +201,13 @@ public class GenericMetricProcessorIT {
                 return value.path("duration").asDouble();
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(1);
-        KafkaUnit.Message<Keys, Double> result1 = resultInDestTopic.get(0);
+        KafkaUnit.Message<Keys, MetricResult> result1 = resultInDestTopic.get(0);
         assertThat(result1.getKey().getRuleName()).isEqualTo("sum");
         assertThat(result1.getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(result1.getKey().getProject()).isEqualTo("myproject");
-        assertThat(result1.getValue()).isEqualTo(10);
+        assertThat(result1.getValue().getResult()).isEqualTo(10);
     }
 
     @Test
@@ -222,7 +223,7 @@ public class GenericMetricProcessorIT {
         GenericMetricProcessor minDuration = new GenericMetricProcessor("sum-groupby", "dsl", "sum-groupby-src") {
 
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -248,22 +249,22 @@ public class GenericMetricProcessorIT {
                 return keys;
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(2);
-        KafkaUnit.Message<Keys, Double> result1 = resultInDestTopic.get(0);
+        KafkaUnit.Message<Keys, MetricResult> result1 = resultInDestTopic.get(0);
         assertThat(result1.getKey().getRuleName()).isEqualTo("sum-groupby");
         assertThat(result1.getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(result1.getKey().getProject()).isEqualTo("myproject");
         assertThat(result1.getKey().getKeys().get("type")).isEqualTo("something");
-        assertThat(result1.getValue()).isEqualTo(1);
+        assertThat(result1.getValue().getResult()).isEqualTo(1);
         //assertThat(resultInDestTopic.get("type:something")).isEqualTo(1d);
         assertThat(resultInDestTopic).hasSize(2);
-        KafkaUnit.Message<Keys, Double> result2 = resultInDestTopic.get(1);
+        KafkaUnit.Message<Keys, MetricResult> result2 = resultInDestTopic.get(1);
         assertThat(result2.getKey().getRuleName()).isEqualTo("sum-groupby");
         assertThat(result2.getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(result2.getKey().getProject()).isEqualTo("myproject");
         assertThat(result2.getKey().getKeys().get("type")).isEqualTo("somethingelse");
-        assertThat(result2.getValue()).isEqualTo(9);
+        assertThat(result2.getValue().getResult()).isEqualTo(9);
     }
 
     @Test
@@ -279,7 +280,7 @@ public class GenericMetricProcessorIT {
         String destTopic = "sum-withfilter-dest";
         GenericMetricProcessor minDuration = new GenericMetricProcessor("sum-withfilter", "dsl", "sum-withfilter-src") {
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -303,13 +304,13 @@ public class GenericMetricProcessorIT {
                 return evaluate("CONTAINS", UtilsValidator.get(value, "type"), "else");
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(1);
-        KafkaUnit.Message<Keys, Double> result1 = resultInDestTopic.get(0);
+        KafkaUnit.Message<Keys, MetricResult> result1 = resultInDestTopic.get(0);
         assertThat(result1.getKey().getRuleName()).isEqualTo("sum-withfilter");
         assertThat(result1.getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(result1.getKey().getProject()).isEqualTo("myproject");
-        assertThat(result1.getValue()).isEqualTo(10);
+        assertThat(result1.getValue().getResult()).isEqualTo(10);
     }
 
     @Test
@@ -338,7 +339,7 @@ public class GenericMetricProcessorIT {
         String destTopic = "min-dest";
         GenericMetricProcessor minDuration = new GenericMetricProcessor("min", "dsl", "min-src") {
             @Override
-            public void routeResult(KStream<Keys, Double> result) {
+            public void routeResult(KStream<Keys, MetricResult> result) {
                 toKafkaTopic(result, destTopic);
             }
 
@@ -357,21 +358,21 @@ public class GenericMetricProcessorIT {
                 return value.path("duration").asDouble();
             }
         };
-        List<KafkaUnit.Message<Keys, Double>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
+        List<KafkaUnit.Message<Keys, MetricResult>> resultInDestTopic = executeMetricStream(input, minDuration, destTopic);
         assertThat(resultInDestTopic).hasSize(2);
         assertThat(resultInDestTopic.get(0).getKey().getRuleName()).isEqualTo("min");
         assertThat(resultInDestTopic.get(0).getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(resultInDestTopic.get(0).getKey().getProject()).isEqualTo("myproject");
-        assertThat(resultInDestTopic.get(0).getValue()).isEqualTo(2);
+        assertThat(resultInDestTopic.get(0).getValue().getResult()).isEqualTo(2);
         assertThat(resultInDestTopic.get(1).getKey().getRuleName()).isEqualTo("min");
         assertThat(resultInDestTopic.get(1).getKey().getRuleDSL()).isEqualTo("dsl");
         assertThat(resultInDestTopic.get(1).getKey().getProject()).isEqualTo("myproject");
-        assertThat(resultInDestTopic.get(1).getValue()).isEqualTo(1);
+        assertThat(resultInDestTopic.get(1).getValue().getResult()).isEqualTo(1);
 
     }
 
 
-    private List<KafkaUnit.Message<Keys, Double>> executeMetricStream(List<ValidateData> input, GenericMetricProcessor metricProcessor, String destTopic) {
+    private List<KafkaUnit.Message<Keys, MetricResult>> executeMetricStream(List<ValidateData> input, GenericMetricProcessor metricProcessor, String destTopic) {
         kafkaUnitRule.getKafkaUnit().createTopic(metricProcessor.getSrcTopic());
         kafkaUnitRule.getKafkaUnit().createTopic(destTopic);
 
@@ -381,7 +382,7 @@ public class GenericMetricProcessorIT {
 
         executeStream(metricProcessor.buildStream(properties));
 
-        KeysDoubleMessageExtractor messageExtractor = new KeysDoubleMessageExtractor();
+        MetricResultMessageExtractor messageExtractor = new MetricResultMessageExtractor();
         return kafkaUnitRule.getKafkaUnit().readMessages(destTopic, 10, messageExtractor);
     }
 

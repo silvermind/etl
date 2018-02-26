@@ -1,6 +1,7 @@
 package io.adopteunops.etl.domain;
 
 public enum RetentionLevel {
+    day(1),
     week(7),
     month(30),
     quarter(90),

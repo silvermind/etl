@@ -49,9 +49,7 @@ public class KafkaAdminService {
     }
 
     private TopicInfo createTopic(String item) {
-        return TopicInfo.builder()
-                .name(item)
-                .build();
+        return zookeeperConfiguration.topicDefaultValue.withName(item);
     }
 
     public void createTopic(TopicInfo topicInfo) {

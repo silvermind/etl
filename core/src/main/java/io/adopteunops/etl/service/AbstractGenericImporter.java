@@ -1,13 +1,10 @@
 package io.adopteunops.etl.service;
 
-import io.adopteunops.etl.config.ESBufferConfiguration;
-import io.adopteunops.etl.config.ESConfiguration;
 import io.adopteunops.etl.config.ProcessConfiguration;
 import io.adopteunops.etl.domain.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,13 +24,10 @@ public abstract class AbstractGenericImporter {
 
     private static final int NUM_CONSUMERS = 10;
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_CONSUMERS);
-    private final RestHighLevelClient elasticsearchClient;
     private final List<AbstractStreamProcess> listConsumer = new ArrayList<>();
     private final GenericValidator genericValidator;
     private final GenericTransformator genericTransformator;
     private final GenericParser genericParser;
-    private final ESBufferConfiguration esBufferConfiguration;
-    private final ESConfiguration esConfiguration;
     private final ProcessConfiguration processConfiguration;
     private final ExternalHTTPService externalHTTPService;
 

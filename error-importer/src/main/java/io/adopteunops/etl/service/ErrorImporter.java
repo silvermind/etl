@@ -1,10 +1,7 @@
 package io.adopteunops.etl.service;
 
 import io.adopteunops.etl.admin.KafkaAdminService;
-import io.adopteunops.etl.config.ESBufferConfiguration;
-import io.adopteunops.etl.config.ESConfiguration;
 import io.adopteunops.etl.config.KafkaConfiguration;
-import io.adopteunops.etl.domain.ESBuffer;
 import io.adopteunops.etl.domain.ErrorData;
 import io.adopteunops.etl.serdes.GenericDeserializer;
 import io.adopteunops.etl.serdes.GenericSerializer;
@@ -16,7 +13,6 @@ import org.apache.kafka.streams.Consumed;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -29,17 +25,15 @@ public class ErrorImporter {
     private static final String INPUT_PROCESS_ERROR = "es-error";
     private final KafkaStreams errorStream;
 
-    public ErrorImporter(RestHighLevelClient esClient, ESConfiguration esConfiguration, ESBufferConfiguration esBufferConfiguration, KafkaConfiguration kafkaConfiguration, ESErrorRetryWriter esErrorRetryWriter, KafkaAdminService kafkaAdminService) {
+    public ErrorImporter(ErrorToElasticsearchProcessor elasticsearchProcessor, KafkaConfiguration kafkaConfiguration, KafkaAdminService kafkaAdminService) {
         kafkaAdminService.buildTopic(kafkaConfiguration.getErrorTopic());
 
         StreamsBuilder builder = new StreamsBuilder();
         final Serde<ErrorData> errorDataSerde = Serdes.serdeFrom(new GenericSerializer<>(), new GenericDeserializer<>(ErrorData.class));
 
         KStream<String, ErrorData> streamToES = builder.stream(kafkaConfiguration.getErrorTopic(), Consumed.with(Serdes.String(), errorDataSerde));
-        ESBuffer esBuffer = new ESBuffer(esClient, esBufferConfiguration, esConfiguration);
 
-        ErrorToElasticsearchProcessor retryToElasticsearchProcessor = new ErrorToElasticsearchProcessor(esBuffer, esErrorRetryWriter);
-        streamToES.process(() -> retryToElasticsearchProcessor);
+        streamToES.process(() -> elasticsearchProcessor);
 
         errorStream = new KafkaStreams(builder.build(), KafkaUtils.createKStreamProperties(INPUT_PROCESS_ERROR, kafkaConfiguration.getBootstrapServers()));
         Runtime.getRuntime().addShutdownHook(new Thread(errorStream::close));

@@ -1,6 +1,5 @@
 package io.adopteunops.etl.service;
 
-import io.adopteunops.etl.domain.ESBuffer;
 import io.adopteunops.etl.domain.ProcessConsumer;
 import io.adopteunops.etl.domain.ValidateData;
 import io.adopteunops.etl.rules.filters.GenericFilter;
@@ -25,13 +24,13 @@ import static io.adopteunops.etl.utils.KafkaUtils.createKStreamProperties;
 @Slf4j
 public class ProcessStreamService extends AbstractStreamProcess {
     private final ESErrorRetryWriter esErrorRetryWriter;
-    private final ESBuffer esBuffer;
+    private final ValidateDataToElasticSearchProcessor elasticSearchProcessor;
     private final List<GenericFilter> genericFilters;
 
-    public ProcessStreamService(GenericValidator genericValidator, GenericTransformator transformValidator, GenericParser genericParser, ProcessConsumer processConsumer, List<GenericFilter> genericFilters, ESErrorRetryWriter esErrorRetryWriter, ESBuffer esBuffer) {
+    public ProcessStreamService(GenericValidator genericValidator, GenericTransformator transformValidator, GenericParser genericParser, ProcessConsumer processConsumer, List<GenericFilter> genericFilters, ESErrorRetryWriter esErrorRetryWriter, ValidateDataToElasticSearchProcessor elasticSearchProcessor) {
         super(genericValidator, transformValidator, genericParser, processConsumer);
         this.esErrorRetryWriter = esErrorRetryWriter;
-        this.esBuffer = esBuffer;
+        this.elasticSearchProcessor = elasticSearchProcessor;
         this.genericFilters = genericFilters;
     }
 
@@ -125,7 +124,7 @@ public class ProcessStreamService extends AbstractStreamProcess {
         final Serde<ValidateData> validateDataSerdes = Serdes.serdeFrom(new ValidateDataSerializer(), new ValidateDataDeserializer());
 
         KStream<String, ValidateData> streamToES = builder.stream(inputTopic, Consumed.with(Serdes.String(), validateDataSerdes));
-        streamToES.process(() -> new ValidateDataToElasticSearchProcessor(esBuffer, esErrorRetryWriter));
+        streamToES.process(() -> elasticSearchProcessor);
 
         KafkaStreams streams = new KafkaStreams(builder.build(), createKStreamProperties(getProcessConsumer().getIdProcess() + ES_PROCESS, getBootstrapServer()));
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

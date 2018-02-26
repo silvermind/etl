@@ -1,6 +1,7 @@
 package io.adopteunops.etl.domain;
 
 import lombok.*;
+import lombok.experimental.Wither;
 
 @Builder
 @Getter
@@ -8,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Wither
 public class TopicInfo {
     private String name;
     private Integer partition;

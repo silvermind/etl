@@ -1,15 +1,12 @@
 package io.adopteunops.etl.service;
 
 import io.adopteunops.etl.admin.KafkaAdminService;
-import io.adopteunops.etl.config.ESBufferConfiguration;
-import io.adopteunops.etl.config.ESConfiguration;
 import io.adopteunops.etl.config.ProcessConfiguration;
 import io.adopteunops.etl.domain.ProcessConsumer;
 import io.adopteunops.etl.domain.ProcessFilter;
 import io.adopteunops.etl.rules.filters.GenericFilter;
 import io.adopteunops.etl.rules.filters.RuleFilterExecutor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +23,8 @@ public class SimulateImporter extends AbstractGenericImporter {
     private final RuleFilterExecutor ruleExecutor;
     private final KafkaAdminService kafkaAdminService;
 
-
-    public SimulateImporter(RestHighLevelClient elasticsearchClient, ESBufferConfiguration esBufferConfiguration, ESConfiguration esConfiguration, GenericValidator genericValidator, GenericTransformator transformValidator, GenericParser genericParser, RuleFilterExecutor ruleExecutor, KafkaAdminService kafkaAdminService, ProcessConfiguration processConfiguration, ExternalHTTPService externalHTTPService) {
-        super(elasticsearchClient, genericValidator, transformValidator, genericParser, esBufferConfiguration, esConfiguration, processConfiguration, externalHTTPService);
+    public SimulateImporter(GenericValidator genericValidator, GenericTransformator transformValidator, GenericParser genericParser, RuleFilterExecutor ruleExecutor, KafkaAdminService kafkaAdminService, ProcessConfiguration processConfiguration, ExternalHTTPService externalHTTPService) {
+        super(genericValidator, transformValidator, genericParser, processConfiguration, externalHTTPService);
         this.ruleExecutor = ruleExecutor;
         this.kafkaAdminService = kafkaAdminService;
     }

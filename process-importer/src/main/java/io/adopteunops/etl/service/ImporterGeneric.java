@@ -1,16 +1,14 @@
 package io.adopteunops.etl.service;
 
 import io.adopteunops.etl.admin.KafkaAdminService;
-import io.adopteunops.etl.config.ESBufferConfiguration;
-import io.adopteunops.etl.config.ESConfiguration;
 import io.adopteunops.etl.config.ProcessConfiguration;
-import io.adopteunops.etl.domain.ESBuffer;
 import io.adopteunops.etl.domain.ProcessConsumer;
 import io.adopteunops.etl.domain.ProcessFilter;
 import io.adopteunops.etl.rules.filters.GenericFilter;
 import io.adopteunops.etl.rules.filters.RuleFilterExecutor;
+import io.adopteunops.etl.service.processor.ValidateDataToElasticSearchProcessor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -31,17 +29,19 @@ public class ImporterGeneric extends AbstractGenericImporter {
     private final RuleFilterExecutor ruleFilterExecutor;
     private final ESErrorRetryWriter esErrorRetryWriter;
     private final KafkaAdminService kafkaAdminService;
+    private final ApplicationContext applicationContext;
 
     @PostConstruct
     public void init() {
         sendToRegistry("addService");
     }
 
-    public ImporterGeneric(RestHighLevelClient elasticsearchClient, ESErrorRetryWriter esErrorRetryWriter, ESBufferConfiguration esBufferConfiguration, ESConfiguration esConfiguration, GenericValidator genericValidator, GenericTransformator transformValidator, GenericParser genericParser, RuleFilterExecutor ruleFilterExecutor, KafkaAdminService kafkaAdminService, ProcessConfiguration processConfiguration, ExternalHTTPService externalHTTPService) {
-        super(elasticsearchClient, genericValidator, transformValidator, genericParser, esBufferConfiguration, esConfiguration, processConfiguration, externalHTTPService);
+    public ImporterGeneric(ESErrorRetryWriter esErrorRetryWriter, GenericValidator genericValidator, GenericTransformator transformValidator, GenericParser genericParser, RuleFilterExecutor ruleFilterExecutor, KafkaAdminService kafkaAdminService, ProcessConfiguration processConfiguration, ExternalHTTPService externalHTTPService, ApplicationContext applicationContext) {
+        super(genericValidator, transformValidator, genericParser, processConfiguration, externalHTTPService);
         this.ruleFilterExecutor = ruleFilterExecutor;
         this.esErrorRetryWriter = esErrorRetryWriter;
         this.kafkaAdminService = kafkaAdminService;
+        this.applicationContext = applicationContext;
     }
 
     public void createProcessGeneric(ProcessConsumer processConsumer) {
@@ -55,7 +55,6 @@ public class ImporterGeneric extends AbstractGenericImporter {
         );
         getExternalHTTPService().buildCache(processConsumer);
         log.info("Create process importer {}", processConsumer.getName());
-        ESBuffer esBuffer = new ESBuffer(getElasticsearchClient(), getEsBufferConfiguration(), getEsConfiguration());
         List<GenericFilter> genericFilters = new ArrayList<>();
         for (ProcessFilter processFilter : processConsumer.getProcessFilter()) {
             genericFilters.add(ruleFilterExecutor.instanciate(processFilter.getName(), processFilter.getCriteria()));
@@ -67,7 +66,7 @@ public class ImporterGeneric extends AbstractGenericImporter {
                 processConsumer,
                 genericFilters,
                 esErrorRetryWriter,
-                esBuffer
+                applicationContext.getBean(ValidateDataToElasticSearchProcessor.class)
         );
         getListConsumer().add(processStreamService);
         getExecutor().submit(processStreamService);
